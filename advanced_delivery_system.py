@@ -1,12 +1,11 @@
-# -*- coding: gb2312 -*-
 """
-¸ß¼¶¿ìµİÅäËÍÏµÍ³ - °üº¬¶àÖÖËã·¨¶Ô±ÈºÍÀ©Õ¹¹¦ÄÜ
-ĞÂÔö¹¦ÄÜ£º
-1. ¶àÖÖ·ÖÇøËã·¨£¨·ÖÖÎ·¨¡¢K-means¾ÛÀà¡¢»ùÓÚÈİÁ¿ÏŞÖÆ£©
-2. ¶àÖÖÂ·¾¶ÓÅ»¯Ëã·¨£¨Ì°ĞÄ¡¢×î½üÁÚ¡¢2-optÓÅ»¯£©
-3. »õ³µÈİÁ¿ÏŞÖÆ
-4. Ëã·¨ĞÔÄÜ¶Ô±È
-5. ²ÎÊıµ÷ÓÅ
+é«˜çº§å¿«é€’é…é€ç³»ç»Ÿ - åŒ…å«å¤šç§ç®—æ³•å¯¹æ¯”å’Œæ‰©å±•åŠŸèƒ½
+æ–°å¢åŠŸèƒ½ï¼š
+1. å¤šç§åˆ†åŒºç®—æ³•ï¼ˆåˆ†æ²»æ³•ã€K-meansèšç±»ã€åŸºäºå®¹é‡é™åˆ¶ï¼‰
+2. å¤šç§è·¯å¾„ä¼˜åŒ–ç®—æ³•ï¼ˆè´ªå¿ƒã€æœ€è¿‘é‚»ã€2-optä¼˜åŒ–ï¼‰
+3. è´§è½¦å®¹é‡é™åˆ¶
+4. ç®—æ³•æ€§èƒ½å¯¹æ¯”
+5. å‚æ•°è°ƒä¼˜
 """
 
 import sys
@@ -30,43 +29,43 @@ from qfluentwidgets import (PushButton, SpinBox, TextEdit, TitleLabel,
                            FluentIcon, InfoBar, InfoBarPosition, ComboBox,
                            CheckBox, TableWidget)
 
-# ÉèÖÃmatplotlibÖ§³ÖÖĞÎÄ
+# è®¾ç½®matplotlibæ”¯æŒä¸­æ–‡
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 class Customer:
-    """ÔöÇ¿¿Í»§Àà"""
+    """å¢å¼ºå®¢æˆ·ç±»"""
     def __init__(self, x, y, customer_id, cargo_weight=None):
         self.x = x
         self.y = y
         self.id = customer_id
-        self.cargo_weight = cargo_weight or random.randint(1, 15)  # »õÎïÖØÁ¿1-15kg
-        self.priority = random.choice(['normal', 'urgent', 'express'])  # ÓÅÏÈ¼¶
-        self.time_window = (8, 18)  # ÅäËÍÊ±¼ä´°¿Ú
+        self.cargo_weight = cargo_weight or random.randint(1, 15)  # è´§ç‰©é‡é‡1-15kg
+        self.priority = random.choice(['normal', 'urgent', 'express'])  # ä¼˜å…ˆçº§
+        self.time_window = (8, 18)  # é…é€æ—¶é—´çª—å£
     
     def distance_to(self, other):
-        """¼ÆËãµ½ÁíÒ»¸öµãµÄ¾àÀë"""
+        """è®¡ç®—åˆ°å¦ä¸€ä¸ªç‚¹çš„è·ç¦»"""
         if isinstance(other, Customer):
             return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
         else:
             return math.sqrt((self.x - other[0])**2 + (self.y - other[1])**2)
 
 class Vehicle:
-    """»õ³µÀà"""
+    """è´§è½¦ç±»"""
     def __init__(self, vehicle_id, capacity=50):
         self.id = vehicle_id
-        self.capacity = capacity  # ÈİÁ¿ÏŞÖÆ£¨kg£©
+        self.capacity = capacity  # å®¹é‡é™åˆ¶ï¼ˆkgï¼‰
         self.current_load = 0
-        self.route = [(0, 0)]  # ´ÓÔ­µã¿ªÊ¼
+        self.route = [(0, 0)]  # ä»åŸç‚¹å¼€å§‹
         self.customers = []
         self.total_distance = 0
     
     def can_add_customer(self, customer):
-        """¼ì²éÊÇ·ñ¿ÉÒÔÌí¼Ó¿Í»§"""
+        """æ£€æŸ¥æ˜¯å¦å¯ä»¥æ·»åŠ å®¢æˆ·"""
         return self.current_load + customer.cargo_weight <= self.capacity
     
     def add_customer(self, customer):
-        """Ìí¼Ó¿Í»§µ½³µÁ¾"""
+        """æ·»åŠ å®¢æˆ·åˆ°è½¦è¾†"""
         if self.can_add_customer(customer):
             self.customers.append(customer)
             self.current_load += customer.cargo_weight
@@ -74,11 +73,11 @@ class Vehicle:
         return False
 
 class PartitionAlgorithm:
-    """·ÖÇøËã·¨Àà"""
+    """åˆ†åŒºç®—æ³•ç±»"""
     
     @staticmethod
     def divide_and_conquer(customers, group_size=5):
-        """·ÖÖÎ·¨·ÖÇø"""
+        """åˆ†æ²»æ³•åˆ†åŒº"""
         if len(customers) <= group_size:
             return [customers]
         
@@ -94,24 +93,24 @@ class PartitionAlgorithm:
     
     @staticmethod
     def kmeans_partition(customers, num_clusters):
-        """K-means¾ÛÀà·ÖÇø"""
+        """K-meansèšç±»åˆ†åŒº"""
         if len(customers) <= num_clusters:
             return [[c] for c in customers]
         
-        # ³õÊ¼»¯¾ÛÀàÖĞĞÄ
+        # åˆå§‹åŒ–èšç±»ä¸­å¿ƒ
         centers = random.sample(customers, num_clusters)
         center_coords = [(c.x, c.y) for c in centers]
         
-        for _ in range(10):  # ×î¶àµü´ú10´Î
+        for _ in range(10):  # æœ€å¤šè¿­ä»£10æ¬¡
             clusters = [[] for _ in range(num_clusters)]
             
-            # ·ÖÅä¿Í»§µ½×î½üµÄ¾ÛÀàÖĞĞÄ
+            # åˆ†é…å®¢æˆ·åˆ°æœ€è¿‘çš„èšç±»ä¸­å¿ƒ
             for customer in customers:
                 distances = [customer.distance_to(center) for center in center_coords]
                 closest_center = distances.index(min(distances))
                 clusters[closest_center].append(customer)
             
-            # ¸üĞÂ¾ÛÀàÖĞĞÄ
+            # æ›´æ–°èšç±»ä¸­å¿ƒ
             new_centers = []
             for cluster in clusters:
                 if cluster:
@@ -129,12 +128,12 @@ class PartitionAlgorithm:
     
     @staticmethod
     def capacity_based_partition(customers, vehicle_capacity=50):
-        """»ùÓÚÈİÁ¿ÏŞÖÆµÄ·ÖÇø"""
+        """åŸºäºå®¹é‡é™åˆ¶çš„åˆ†åŒº"""
         groups = []
         current_group = []
         current_weight = 0
         
-        # °´ÓÅÏÈ¼¶ºÍÖØÁ¿ÅÅĞò
+        # æŒ‰ä¼˜å…ˆçº§å’Œé‡é‡æ’åº
         sorted_customers = sorted(customers, 
                                 key=lambda c: (c.priority != 'urgent', c.cargo_weight))
         
@@ -154,11 +153,11 @@ class PartitionAlgorithm:
         return groups
 
 class RouteOptimizer:
-    """Â·¾¶ÓÅ»¯Ëã·¨Àà"""
+    """è·¯å¾„ä¼˜åŒ–ç®—æ³•ç±»"""
     
     @staticmethod
     def greedy_nearest(customers):
-        """Ì°ĞÄ×î½üÁÚËã·¨"""
+        """è´ªå¿ƒæœ€è¿‘é‚»ç®—æ³•"""
         if not customers:
             return [], 0
         
@@ -176,7 +175,7 @@ class RouteOptimizer:
             current_pos = (nearest.x, nearest.y)
             unvisited.remove(nearest)
         
-        # ·µ»ØÔ­µã
+        # è¿”å›åŸç‚¹
         return_distance = math.sqrt(current_pos[0]**2 + current_pos[1]**2)
         total_distance += return_distance
         route.append((0, 0))
@@ -185,7 +184,7 @@ class RouteOptimizer:
     
     @staticmethod
     def two_opt_improve(route, customers):
-        """2-optÓÅ»¯Ëã·¨"""
+        """2-optä¼˜åŒ–ç®—æ³•"""
         def calculate_route_distance(route_points):
             distance = 0
             for i in range(len(route_points) - 1):
@@ -220,19 +219,19 @@ class RouteOptimizer:
     
     @staticmethod
     def dynamic_programming_tsp(customers):
-        """¶¯Ì¬¹æ»®TSPËã·¨ - ±£Ö¤È«¾Ö×îÓÅ½â£¨ÊÊÓÃÓÚĞ¡¹æÄ£ÎÊÌâ£©"""
+        """åŠ¨æ€è§„åˆ’TSPç®—æ³• - ä¿è¯å…¨å±€æœ€ä¼˜è§£ï¼ˆé€‚ç”¨äºå°è§„æ¨¡é—®é¢˜ï¼‰"""
         if not customers:
             return [], 0
         
-        if len(customers) > 10:  # DPËã·¨¸´ÔÓ¶È¹ı¸ß£¬ÏŞÖÆÎÊÌâ¹æÄ£
-            # ¶ÔÓÚ´ó¹æÄ£ÎÊÌâ£¬»ØÍËµ½Ì°ĞÄËã·¨
+        if len(customers) > 10:  # DPç®—æ³•å¤æ‚åº¦è¿‡é«˜ï¼Œé™åˆ¶é—®é¢˜è§„æ¨¡
+            # å¯¹äºå¤§è§„æ¨¡é—®é¢˜ï¼Œå›é€€åˆ°è´ªå¿ƒç®—æ³•
             return RouteOptimizer.greedy_nearest(customers)
         
         n = len(customers)
-        # Ìí¼ÓÔ­µã×÷ÎªÆğÊ¼µã
+        # æ·»åŠ åŸç‚¹ä½œä¸ºèµ·å§‹ç‚¹
         points = [(0, 0)] + [(c.x, c.y) for c in customers]
         
-        # ¼ÆËã¾àÀë¾ØÕó
+        # è®¡ç®—è·ç¦»çŸ©é˜µ
         dist = [[0] * (n + 1) for _ in range(n + 1)]
         for i in range(n + 1):
             for j in range(n + 1):
@@ -240,14 +239,14 @@ class RouteOptimizer:
                     dist[i][j] = math.sqrt((points[i][0] - points[j][0])**2 + 
                                          (points[i][1] - points[j][1])**2)
         
-        # DP×´Ì¬£ºdp[mask][i] ±íÊ¾·ÃÎÊÁËmask¼¯ºÏÖĞµÄ³ÇÊĞ£¬µ±Ç°ÔÚ³ÇÊĞiµÄ×î¶Ì¾àÀë
+        # DPçŠ¶æ€ï¼šdp[mask][i] è¡¨ç¤ºè®¿é—®äº†maské›†åˆä¸­çš„åŸå¸‚ï¼Œå½“å‰åœ¨åŸå¸‚içš„æœ€çŸ­è·ç¦»
         dp = {}
         parent = {}
         
-        # ³õÊ¼»¯£º´ÓÔ­µã0¿ªÊ¼
-        dp[(1, 0)] = 0  # mask=1±íÊ¾Ö»·ÃÎÊÁËÔ­µã
+        # åˆå§‹åŒ–ï¼šä»åŸç‚¹0å¼€å§‹
+        dp[(1, 0)] = 0  # mask=1è¡¨ç¤ºåªè®¿é—®äº†åŸç‚¹
         
-        # Ìî³äDP±í
+        # å¡«å……DPè¡¨
         for mask in range(1, 1 << (n + 1)):
             for u in range(n + 1):
                 if not (mask & (1 << u)):
@@ -264,7 +263,7 @@ class RouteOptimizer:
                             dp[(mask, u)] = new_dist
                             parent[(mask, u)] = v
         
-        # ÕÒµ½×îÓÅ½â£º»Øµ½Ô­µã
+        # æ‰¾åˆ°æœ€ä¼˜è§£ï¼šå›åˆ°åŸç‚¹
         full_mask = (1 << (n + 1)) - 1
         min_cost = float('inf')
         last_city = -1
@@ -276,7 +275,7 @@ class RouteOptimizer:
                     min_cost = cost
                     last_city = i
         
-        # ÖØ¹¹Â·¾¶
+        # é‡æ„è·¯å¾„
         if last_city == -1:
             return RouteOptimizer.greedy_nearest(customers)
         
@@ -290,17 +289,17 @@ class RouteOptimizer:
             mask ^= (1 << curr)
             curr = next_curr
         
-        path.append(0)  # ÆğÊ¼µã
+        path.append(0)  # èµ·å§‹ç‚¹
         path.reverse()
         
-        # ×ª»»Îª×ø±êÂ·¾¶
+        # è½¬æ¢ä¸ºåæ ‡è·¯å¾„
         route = [points[i] for i in path] + [(0, 0)]
         
         return route, min_cost
     
     @staticmethod
     def genetic_algorithm_tsp(customers, population_size=50, generations=100, mutation_rate=0.1):
-        """ÒÅ´«Ëã·¨TSP"""
+        """é—ä¼ ç®—æ³•TSP"""
         if not customers:
             return [], 0
         
@@ -308,7 +307,7 @@ class RouteOptimizer:
         points = [(0, 0)] + [(c.x, c.y) for c in customers]
         
         def calculate_distance(route):
-            """¼ÆËãÂ·¾¶×Ü¾àÀë"""
+            """è®¡ç®—è·¯å¾„æ€»è·ç¦»"""
             total = 0
             for i in range(len(route) - 1):
                 p1, p2 = points[route[i]], points[route[i + 1]]
@@ -316,24 +315,24 @@ class RouteOptimizer:
             return total
         
         def create_individual():
-            """´´½¨¸öÌå£¨Ëæ»úÂ·¾¶£©"""
-            route = [0] + list(range(1, n + 1)) + [0]  # ´ÓÔ­µã¿ªÊ¼ºÍ½áÊø
+            """åˆ›å»ºä¸ªä½“ï¼ˆéšæœºè·¯å¾„ï¼‰"""
+            route = [0] + list(range(1, n + 1)) + [0]  # ä»åŸç‚¹å¼€å§‹å’Œç»“æŸ
             middle = route[1:-1]
             random.shuffle(middle)
             return route[0:1] + middle + route[-1:]
         
         def crossover(parent1, parent2):
-            """½»²æ²Ù×÷ - Ë³Ğò½»²æ"""
-            size = len(parent1) - 2  # ³ıÈ¥ÆğÊ¼ºÍ½áÊøµÄÔ­µã
+            """äº¤å‰æ“ä½œ - é¡ºåºäº¤å‰"""
+            size = len(parent1) - 2  # é™¤å»èµ·å§‹å’Œç»“æŸçš„åŸç‚¹
             start, end = sorted(random.sample(range(1, size + 1), 2))
             
             child = [0] * (size + 2)
-            child[0] = child[-1] = 0  # ÆğÊ¼ºÍ½áÊø¶¼ÊÇÔ­µã
+            child[0] = child[-1] = 0  # èµ·å§‹å’Œç»“æŸéƒ½æ˜¯åŸç‚¹
             
-            # ¸´ÖÆ¸¸´ú1µÄÒ»¶Î
+            # å¤åˆ¶çˆ¶ä»£1çš„ä¸€æ®µ
             child[start:end] = parent1[start:end]
             
-            # Ìî³äÊ£ÓàÎ»ÖÃ
+            # å¡«å……å‰©ä½™ä½ç½®
             remaining = [item for item in parent2[1:-1] if item not in child[start:end]]
             j = 0
             for i in range(1, size + 1):
@@ -344,28 +343,28 @@ class RouteOptimizer:
             return child
         
         def mutate(individual):
-            """±äÒì²Ù×÷ - ½»»»Á½¸ö³ÇÊĞ"""
+            """å˜å¼‚æ“ä½œ - äº¤æ¢ä¸¤ä¸ªåŸå¸‚"""
             if random.random() < mutation_rate:
                 i, j = random.sample(range(1, len(individual) - 1), 2)
                 individual[i], individual[j] = individual[j], individual[i]
             return individual
         
-        # ³õÊ¼»¯ÖÖÈº
+        # åˆå§‹åŒ–ç§ç¾¤
         population = [create_individual() for _ in range(population_size)]
         
-        # ½ø»¯¹ı³Ì
+        # è¿›åŒ–è¿‡ç¨‹
         for generation in range(generations):
-            # ¼ÆËãÊÊÓ¦¶È£¨¾àÀëÔ½¶ÌÊÊÓ¦¶ÈÔ½¸ß£©
+            # è®¡ç®—é€‚åº”åº¦ï¼ˆè·ç¦»è¶ŠçŸ­é€‚åº”åº¦è¶Šé«˜ï¼‰
             fitness_scores = [(1.0 / (calculate_distance(ind) + 1), ind) for ind in population]
             fitness_scores.sort(reverse=True)
             
-            # Ñ¡ÔñÓÅĞã¸öÌå
+            # é€‰æ‹©ä¼˜ç§€ä¸ªä½“
             elite_size = population_size // 4
             new_population = [ind for _, ind in fitness_scores[:elite_size]]
             
-            # Éú³ÉĞÂ¸öÌå
+            # ç”Ÿæˆæ–°ä¸ªä½“
             while len(new_population) < population_size:
-                # ÂÖÅÌ¶ÄÑ¡Ôñ
+                # è½®ç›˜èµŒé€‰æ‹©
                 total_fitness = sum(score for score, _ in fitness_scores)
                 r1 = random.uniform(0, total_fitness)
                 r2 = random.uniform(0, total_fitness)
@@ -388,7 +387,7 @@ class RouteOptimizer:
             
             population = new_population
         
-        # ·µ»Ø×îÓÅ½â
+        # è¿”å›æœ€ä¼˜è§£
         best_individual = min(population, key=calculate_distance)
         best_distance = calculate_distance(best_individual)
         best_route = [points[i] for i in best_individual]
@@ -397,14 +396,14 @@ class RouteOptimizer:
     
     @staticmethod
     def ant_colony_optimization(customers, num_ants=20, iterations=50, alpha=1.0, beta=2.0, evaporation=0.5):
-        """ÒÏÈºËã·¨TSP"""
+        """èšç¾¤ç®—æ³•TSP"""
         if not customers:
             return [], 0
         
         n = len(customers)
         points = [(0, 0)] + [(c.x, c.y) for c in customers]
         
-        # ¼ÆËã¾àÀë¾ØÕó
+        # è®¡ç®—è·ç¦»çŸ©é˜µ
         distances = [[0] * (n + 1) for _ in range(n + 1)]
         for i in range(n + 1):
             for j in range(n + 1):
@@ -412,7 +411,7 @@ class RouteOptimizer:
                     distances[i][j] = math.sqrt((points[i][0] - points[j][0])**2 + 
                                               (points[i][1] - points[j][1])**2)
         
-        # ³õÊ¼»¯ĞÅÏ¢ËØ¾ØÕó
+        # åˆå§‹åŒ–ä¿¡æ¯ç´ çŸ©é˜µ
         pheromones = [[1.0] * (n + 1) for _ in range(n + 1)]
         
         best_route = None
@@ -421,24 +420,24 @@ class RouteOptimizer:
         for iteration in range(iterations):
             all_routes = []
             
-            # Ã¿Ö»ÂìÒÏ¹¹½¨Â·¾¶
+            # æ¯åªèš‚èšæ„å»ºè·¯å¾„
             for ant in range(num_ants):
-                current = 0  # ´ÓÔ­µã¿ªÊ¼
+                current = 0  # ä»åŸç‚¹å¼€å§‹
                 visited = {0}
                 route = [0]
                 
-                # ·ÃÎÊËùÓĞ¿Í»§
+                # è®¿é—®æ‰€æœ‰å®¢æˆ·
                 while len(visited) < n + 1:
                     unvisited = [i for i in range(n + 1) if i not in visited]
                     
-                    # ¼ÆËã×ªÒÆ¸ÅÂÊ
+                    # è®¡ç®—è½¬ç§»æ¦‚ç‡
                     probabilities = []
                     for next_city in unvisited:
                         pheromone = pheromones[current][next_city] ** alpha
                         visibility = (1.0 / distances[current][next_city]) ** beta if distances[current][next_city] > 0 else 0
                         probabilities.append(pheromone * visibility)
                     
-                    # ÂÖÅÌ¶ÄÑ¡ÔñÏÂÒ»¸ö³ÇÊĞ
+                    # è½®ç›˜èµŒé€‰æ‹©ä¸‹ä¸€ä¸ªåŸå¸‚
                     if sum(probabilities) > 0:
                         probabilities = [p / sum(probabilities) for p in probabilities]
                         next_city = np.random.choice(unvisited, p=probabilities)
@@ -449,38 +448,38 @@ class RouteOptimizer:
                     visited.add(next_city)
                     current = next_city
                 
-                # »Øµ½Ô­µã
+                # å›åˆ°åŸç‚¹
                 route.append(0)
                 
-                # ¼ÆËãÂ·¾¶¾àÀë
+                # è®¡ç®—è·¯å¾„è·ç¦»
                 distance = sum(distances[route[i]][route[i + 1]] for i in range(len(route) - 1))
                 all_routes.append((route, distance))
                 
-                # ¸üĞÂ×îÓÅ½â
+                # æ›´æ–°æœ€ä¼˜è§£
                 if distance < best_distance:
                     best_distance = distance
                     best_route = route.copy()
             
-            # ¸üĞÂĞÅÏ¢ËØ
-            # Õô·¢
+            # æ›´æ–°ä¿¡æ¯ç´ 
+            # è’¸å‘
             for i in range(n + 1):
                 for j in range(n + 1):
                     pheromones[i][j] *= (1 - evaporation)
             
-            # ÔöÇ¿
+            # å¢å¼º
             for route, distance in all_routes:
                 deposit = 1.0 / distance if distance > 0 else 0
                 for i in range(len(route) - 1):
                     pheromones[route[i]][route[i + 1]] += deposit
                     pheromones[route[i + 1]][route[i]] += deposit
         
-        # ×ª»»Îª×ø±êÂ·¾¶
+        # è½¬æ¢ä¸ºåæ ‡è·¯å¾„
         result_route = [points[i] for i in best_route]
         return result_route, best_distance
     
     @staticmethod
     def simulated_annealing_tsp(customers, initial_temp=1000, cooling_rate=0.95, min_temp=1):
-        """Ä£ÄâÍË»ğËã·¨TSP"""
+        """æ¨¡æ‹Ÿé€€ç«ç®—æ³•TSP"""
         if not customers:
             return [], 0
         
@@ -488,7 +487,7 @@ class RouteOptimizer:
         points = [(0, 0)] + [(c.x, c.y) for c in customers]
         
         def calculate_distance(route):
-            """¼ÆËãÂ·¾¶×Ü¾àÀë"""
+            """è®¡ç®—è·¯å¾„æ€»è·ç¦»"""
             total = 0
             for i in range(len(route) - 1):
                 p1, p2 = points[route[i]], points[route[i + 1]]
@@ -496,13 +495,13 @@ class RouteOptimizer:
             return total
         
         def get_neighbor(route):
-            """Éú³ÉÁÚ¾Ó½â - Ëæ»ú½»»»Á½¸ö³ÇÊĞ"""
+            """ç”Ÿæˆé‚»å±…è§£ - éšæœºäº¤æ¢ä¸¤ä¸ªåŸå¸‚"""
             new_route = route.copy()
-            i, j = random.sample(range(1, len(route) - 1), 2)  # ²»°üÀ¨ÆğÊ¼ºÍ½áÊøµÄÔ­µã
+            i, j = random.sample(range(1, len(route) - 1), 2)  # ä¸åŒ…æ‹¬èµ·å§‹å’Œç»“æŸçš„åŸç‚¹
             new_route[i], new_route[j] = new_route[j], new_route[i]
             return new_route
         
-        # ³õÊ¼½â - Ì°ĞÄËã·¨Éú³É
+        # åˆå§‹è§£ - è´ªå¿ƒç®—æ³•ç”Ÿæˆ
         current_route = [0] + list(range(1, n + 1)) + [0]
         current_distance = calculate_distance(current_route)
         
@@ -512,29 +511,29 @@ class RouteOptimizer:
         temperature = initial_temp
         
         while temperature > min_temp:
-            for _ in range(100):  # ÔÚÃ¿¸öÎÂ¶ÈÏÂ³¢ÊÔ100´Î
+            for _ in range(100):  # åœ¨æ¯ä¸ªæ¸©åº¦ä¸‹å°è¯•100æ¬¡
                 new_route = get_neighbor(current_route)
                 new_distance = calculate_distance(new_route)
                 
-                # ¼ÆËã½ÓÊÜ¸ÅÂÊ
+                # è®¡ç®—æ¥å—æ¦‚ç‡
                 delta = new_distance - current_distance
                 if delta < 0 or random.random() < math.exp(-delta / temperature):
                     current_route = new_route
                     current_distance = new_distance
                     
-                    # ¸üĞÂ×îÓÅ½â
+                    # æ›´æ–°æœ€ä¼˜è§£
                     if current_distance < best_distance:
                         best_route = current_route.copy()
                         best_distance = current_distance
             
             temperature *= cooling_rate
         
-        # ×ª»»Îª×ø±êÂ·¾¶
+        # è½¬æ¢ä¸ºåæ ‡è·¯å¾„
         result_route = [points[i] for i in best_route]
         return result_route, best_distance
 
 class DeliveryZone:
-    """ÔöÇ¿ÅäËÍÇøÓòÀà"""
+    """å¢å¼ºé…é€åŒºåŸŸç±»"""
     def __init__(self, customers, zone_id, vehicle_capacity=50):
         self.customers = customers
         self.zone_id = zone_id
@@ -545,34 +544,34 @@ class DeliveryZone:
         self.algorithm_used = ""
         self.calculation_time = 0
     def optimize_route(self, algorithm='greedy'):
-        """Ê¹ÓÃÖ¸¶¨Ëã·¨ÓÅ»¯Â·Ïß"""
+        """ä½¿ç”¨æŒ‡å®šç®—æ³•ä¼˜åŒ–è·¯çº¿"""
         start_time = time.time()
         
         if algorithm == 'greedy':
             self.route, self.total_distance = RouteOptimizer.greedy_nearest(self.customers)
-            self.algorithm_used = "Ì°ĞÄ×î½üÁÚ"
+            self.algorithm_used = "è´ªå¿ƒæœ€è¿‘é‚»"
         elif algorithm == '2opt':
             greedy_route, _ = RouteOptimizer.greedy_nearest(self.customers)
             self.route, self.total_distance = RouteOptimizer.two_opt_improve(greedy_route, self.customers)
-            self.algorithm_used = "2-optÓÅ»¯"
+            self.algorithm_used = "2-optä¼˜åŒ–"
         elif algorithm == 'dp':
             self.route, self.total_distance = RouteOptimizer.dynamic_programming_tsp(self.customers)
-            self.algorithm_used = "¶¯Ì¬¹æ»®(DP)"
+            self.algorithm_used = "åŠ¨æ€è§„åˆ’(DP)"
         elif algorithm == 'ga':
             self.route, self.total_distance = RouteOptimizer.genetic_algorithm_tsp(self.customers)
-            self.algorithm_used = "ÒÅ´«Ëã·¨(GA)"
+            self.algorithm_used = "é—ä¼ ç®—æ³•(GA)"
         elif algorithm == 'aco':
             self.route, self.total_distance = RouteOptimizer.ant_colony_optimization(self.customers)
-            self.algorithm_used = "ÒÏÈºËã·¨(ACO)"
+            self.algorithm_used = "èšç¾¤ç®—æ³•(ACO)"
         elif algorithm == 'sa':
             self.route, self.total_distance = RouteOptimizer.simulated_annealing_tsp(self.customers)
-            self.algorithm_used = "Ä£ÄâÍË»ğ(SA)"
+            self.algorithm_used = "æ¨¡æ‹Ÿé€€ç«(SA)"
         
         self.calculation_time = time.time() - start_time
         return self.total_distance
 
 class AdvancedVisualizationWidget(QWidget):
-    """¸ß¼¶¿ÉÊÓ»¯×é¼ş"""
+    """é«˜çº§å¯è§†åŒ–ç»„ä»¶"""
     
     def __init__(self):
         super().__init__()
@@ -582,7 +581,7 @@ class AdvancedVisualizationWidget(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # ´´½¨matplotlibÍ¼ĞÎ
+        # åˆ›å»ºmatplotlibå›¾å½¢
         self.figure = Figure(figsize=(14, 10))
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
@@ -590,110 +589,110 @@ class AdvancedVisualizationWidget(QWidget):
         self.setLayout(layout)
     
     def plot_advanced_delivery_system(self, zones, algorithm_info=""):
-        """»æÖÆ¸ß¼¶ÅäËÍÏµÍ³Í¼"""
+        """ç»˜åˆ¶é«˜çº§é…é€ç³»ç»Ÿå›¾"""
         self.zones = zones
         self.figure.clear()
         
-        # ´´½¨×ÓÍ¼
-        ax1 = self.figure.add_subplot(221)  # Â·ÏßÍ¼
-        ax2 = self.figure.add_subplot(222)  # ÈİÁ¿·Ö²¼
-        ax3 = self.figure.add_subplot(223)  # ¾àÀë·ÖÎö
-        ax4 = self.figure.add_subplot(224)  # Ëã·¨ĞÔÄÜ
+        # åˆ›å»ºå­å›¾
+        ax1 = self.figure.add_subplot(221)  # è·¯çº¿å›¾
+        ax2 = self.figure.add_subplot(222)  # å®¹é‡åˆ†å¸ƒ
+        ax3 = self.figure.add_subplot(223)  # è·ç¦»åˆ†æ
+        ax4 = self.figure.add_subplot(224)  # ç®—æ³•æ€§èƒ½
         
-        # »æÖÆÂ·ÏßÍ¼
+        # ç»˜åˆ¶è·¯çº¿å›¾
         self.plot_routes(ax1, zones)
         
-        # »æÖÆÈİÁ¿·Ö²¼
+        # ç»˜åˆ¶å®¹é‡åˆ†å¸ƒ
         self.plot_capacity_distribution(ax2, zones)
         
-        # »æÖÆ¾àÀë·ÖÎö
+        # ç»˜åˆ¶è·ç¦»åˆ†æ
         self.plot_distance_analysis(ax3, zones)
         
-        # »æÖÆËã·¨ĞÔÄÜ
+        # ç»˜åˆ¶ç®—æ³•æ€§èƒ½
         self.plot_algorithm_performance(ax4, zones)
         
-        self.figure.suptitle(f'¸ß¼¶¿ìµİÅäËÍÏµÍ³·ÖÎö - {algorithm_info}', fontsize=14)
+        self.figure.suptitle(f'é«˜çº§å¿«é€’é…é€ç³»ç»Ÿåˆ†æ - {algorithm_info}', fontsize=14)
         self.figure.tight_layout()
         self.canvas.draw()
     
     def plot_routes(self, ax, zones):
-        """»æÖÆÅäËÍÂ·Ïß"""
+        """ç»˜åˆ¶é…é€è·¯çº¿"""
         colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 
                  'pink', 'gray', 'olive', 'cyan']
         
-        ax.plot(0, 0, 'ko', markersize=15, label='ÅäËÍÖĞĞÄ')
+        ax.plot(0, 0, 'ko', markersize=15, label='é…é€ä¸­å¿ƒ')
         
         for i, zone in enumerate(zones):
             color = colors[i % len(colors)]
             
-            # »æÖÆ¿Í»§µã
+            # ç»˜åˆ¶å®¢æˆ·ç‚¹
             x_coords = [c.x for c in zone.customers]
             y_coords = [c.y for c in zone.customers]
             
-            # ¸ù¾İ»õÎïÖØÁ¿µ÷ÕûµãµÄ´óĞ¡
+            # æ ¹æ®è´§ç‰©é‡é‡è°ƒæ•´ç‚¹çš„å¤§å°
             sizes = [c.cargo_weight * 10 for c in zone.customers]
             ax.scatter(x_coords, y_coords, c=color, s=sizes, alpha=0.7,
-                      label=f'ÇøÓò{zone.zone_id}({zone.total_weight}kg)')
+                      label=f'åŒºåŸŸ{zone.zone_id}({zone.total_weight}kg)')
             
-            # »æÖÆÅäËÍÂ·Ïß
+            # ç»˜åˆ¶é…é€è·¯çº¿
             if zone.route:
                 route_x = [point[0] for point in zone.route]
                 route_y = [point[1] for point in zone.route]
                 ax.plot(route_x, route_y, color=color, linewidth=2, alpha=0.8)
         
-        ax.set_xlabel('X×ø±ê')
-        ax.set_ylabel('Y×ø±ê')
-        ax.set_title('ÅäËÍÂ·ÏßÍ¼')
+        ax.set_xlabel('Xåæ ‡')
+        ax.set_ylabel('Yåæ ‡')
+        ax.set_title('é…é€è·¯çº¿å›¾')
         ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         ax.grid(True, alpha=0.3)
     
     def plot_capacity_distribution(self, ax, zones):
-        """»æÖÆÈİÁ¿·Ö²¼Í¼"""
-        zone_ids = [f'ÇøÓò{zone.zone_id}' for zone in zones]
+        """ç»˜åˆ¶å®¹é‡åˆ†å¸ƒå›¾"""
+        zone_ids = [f'åŒºåŸŸ{zone.zone_id}' for zone in zones]
         weights = [zone.total_weight for zone in zones]
         
         bars = ax.bar(zone_ids, weights, color='skyblue', alpha=0.7)
-        ax.axhline(y=50, color='red', linestyle='--', label='ÈİÁ¿ÏŞÖÆ(50kg)')
+        ax.axhline(y=50, color='red', linestyle='--', label='å®¹é‡é™åˆ¶(50kg)')
         
-        # ÔÚÖù×ÓÉÏÏÔÊ¾ÊıÖµ
+        # åœ¨æŸ±å­ä¸Šæ˜¾ç¤ºæ•°å€¼
         for bar, weight in zip(bars, weights):
             height = bar.get_height()
             ax.text(bar.get_x() + bar.get_width()/2., height,
                    f'{weight}kg', ha='center', va='bottom')
         
-        ax.set_ylabel('ÖØÁ¿ (kg)')
-        ax.set_title('¸÷ÇøÓò»õÎïÖØÁ¿·Ö²¼')
+        ax.set_ylabel('é‡é‡ (kg)')
+        ax.set_title('å„åŒºåŸŸè´§ç‰©é‡é‡åˆ†å¸ƒ')
         ax.legend()
         plt.setp(ax.get_xticklabels(), rotation=45)
     
     def plot_distance_analysis(self, ax, zones):
-        """»æÖÆ¾àÀë·ÖÎöÍ¼"""
+        """ç»˜åˆ¶è·ç¦»åˆ†æå›¾"""
         distances = [zone.total_distance for zone in zones]
-        zone_ids = [f'ÇøÓò{zone.zone_id}' for zone in zones]
+        zone_ids = [f'åŒºåŸŸ{zone.zone_id}' for zone in zones]
         
         ax.bar(zone_ids, distances, color='lightgreen', alpha=0.7)
-        ax.set_ylabel('¾àÀë')
-        ax.set_title('¸÷ÇøÓòÅäËÍ¾àÀë')
+        ax.set_ylabel('è·ç¦»')
+        ax.set_title('å„åŒºåŸŸé…é€è·ç¦»')
         
-        # Ìí¼ÓÆ½¾ùÏß
+        # æ·»åŠ å¹³å‡çº¿
         avg_distance = np.mean(distances)
         ax.axhline(y=avg_distance, color='red', linestyle='--', 
-                  label=f'Æ½¾ù¾àÀë: {avg_distance:.1f}')
+                  label=f'å¹³å‡è·ç¦»: {avg_distance:.1f}')
         ax.legend()
         plt.setp(ax.get_xticklabels(), rotation=45)
     
     def plot_algorithm_performance(self, ax, zones):
-        """»æÖÆËã·¨ĞÔÄÜÍ¼"""
-        calc_times = [zone.calculation_time * 1000 for zone in zones]  # ×ª»»ÎªºÁÃë
-        zone_ids = [f'ÇøÓò{zone.zone_id}' for zone in zones]
+        """ç»˜åˆ¶ç®—æ³•æ€§èƒ½å›¾"""
+        calc_times = [zone.calculation_time * 1000 for zone in zones]  # è½¬æ¢ä¸ºæ¯«ç§’
+        zone_ids = [f'åŒºåŸŸ{zone.zone_id}' for zone in zones]
         
         ax.bar(zone_ids, calc_times, color='orange', alpha=0.7)
-        ax.set_ylabel('¼ÆËãÊ±¼ä (ms)')
-        ax.set_title('Ëã·¨¼ÆËãÊ±¼ä')
+        ax.set_ylabel('è®¡ç®—æ—¶é—´ (ms)')
+        ax.set_title('ç®—æ³•è®¡ç®—æ—¶é—´')
         plt.setp(ax.get_xticklabels(), rotation=45)
 
 class AdvancedCalculationThread(QThread):
-    """¸ß¼¶¼ÆËãÏß³Ì"""
+    """é«˜çº§è®¡ç®—çº¿ç¨‹"""
     finished = pyqtSignal(list, float, dict)
     
     def __init__(self, num_customers, partition_method, route_method, vehicle_capacity):
@@ -706,35 +705,35 @@ class AdvancedCalculationThread(QThread):
     def run(self):
         start_time = time.time()
         
-        # Éú³ÉËæ»ú¿Í»§
+        # ç”Ÿæˆéšæœºå®¢æˆ·
         customers = []
         for i in range(self.num_customers):
             x = random.randint(-60, 60)
             y = random.randint(-60, 60)
             customers.append(Customer(x, y, i+1))
         
-        # Ñ¡Ôñ·ÖÇøËã·¨
-        if self.partition_method == "·ÖÖÎ·¨":
+        # é€‰æ‹©åˆ†åŒºç®—æ³•
+        if self.partition_method == "åˆ†æ²»æ³•":
             customer_groups = PartitionAlgorithm.divide_and_conquer(customers, 5)
-        elif self.partition_method == "K-means¾ÛÀà":
+        elif self.partition_method == "K-meansèšç±»":
             num_clusters = max(1, len(customers) // 5)
             customer_groups = PartitionAlgorithm.kmeans_partition(customers, num_clusters)
-        elif self.partition_method == "ÈİÁ¿ÏŞÖÆ":
+        elif self.partition_method == "å®¹é‡é™åˆ¶":
             customer_groups = PartitionAlgorithm.capacity_based_partition(
                 customers, self.vehicle_capacity)
         
-        # ´´½¨ÅäËÍÇøÓò²¢ÓÅ»¯Â·Ïß
+        # åˆ›å»ºé…é€åŒºåŸŸå¹¶ä¼˜åŒ–è·¯çº¿
         zones = []
         total_distance = 0
         
         for i, group in enumerate(customer_groups):
-            if group:  # È·±£×é²»Îª¿Õ
+            if group:  # ç¡®ä¿ç»„ä¸ä¸ºç©º
                 zone = DeliveryZone(group, i+1, self.vehicle_capacity)
                 distance = zone.optimize_route(self.route_method.lower().replace('-', ''))
                 total_distance += distance
                 zones.append(zone)
         
-        # ¼ÆËãÍ³¼ÆĞÅÏ¢
+        # è®¡ç®—ç»Ÿè®¡ä¿¡æ¯
         calculation_time = time.time() - start_time
         stats = {
             'total_time': calculation_time,
@@ -749,7 +748,7 @@ class AdvancedCalculationThread(QThread):
         self.finished.emit(zones, total_distance, stats)
 
 class AdvancedDeliverySystemWindow(QMainWindow):
-    """¸ß¼¶Ö÷´°¿ÚÀà"""
+    """é«˜çº§ä¸»çª—å£ç±»"""
     
     def __init__(self):
         super().__init__()
@@ -758,35 +757,35 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         self.init_ui()
         
     def init_ui(self):
-        self.setWindowTitle('¸ß¼¶ÖÇÄÜ¿ìµİÅäËÍÏµÍ³ v2.0')
+        self.setWindowTitle('é«˜çº§æ™ºèƒ½å¿«é€’é…é€ç³»ç»Ÿ v2.0')
         self.setGeometry(50, 50, 1600, 900)
         
-        # ÉèÖÃÖ÷Ìâ
+        # è®¾ç½®ä¸»é¢˜
         setTheme(Theme.AUTO)
         
-        # ´´½¨±êÇ©Ò³
+        # åˆ›å»ºæ ‡ç­¾é¡µ
         self.tab_widget = QTabWidget()
         self.setCentralWidget(self.tab_widget)
         
-        # ´´½¨Ö÷Òª·ÖÎö±êÇ©Ò³
+        # åˆ›å»ºä¸»è¦åˆ†ææ ‡ç­¾é¡µ
         self.create_main_tab()
         
-        # ´´½¨Ëã·¨¶Ô±È±êÇ©Ò³
+        # åˆ›å»ºç®—æ³•å¯¹æ¯”æ ‡ç­¾é¡µ
         self.create_comparison_tab()
     
     def create_main_tab(self):
-        """´´½¨Ö÷Òª·ÖÎö±êÇ©Ò³"""
+        """åˆ›å»ºä¸»è¦åˆ†ææ ‡ç­¾é¡µ"""
         main_tab = QWidget()
-        self.tab_widget.addTab(main_tab, "Ö÷Òª·ÖÎö")
+        self.tab_widget.addTab(main_tab, "ä¸»è¦åˆ†æ")
         
         layout = QHBoxLayout()
         main_tab.setLayout(layout)
         
-        # ×ó²à¿ØÖÆÃæ°å
+        # å·¦ä¾§æ§åˆ¶é¢æ¿
         control_panel = self.create_advanced_control_panel()
         layout.addWidget(control_panel)
         
-        # ÓÒ²à¿ÉÊÓ»¯ÇøÓò
+        # å³ä¾§å¯è§†åŒ–åŒºåŸŸ
         self.visualization = AdvancedVisualizationWidget()
         layout.addWidget(self.visualization)
         
@@ -794,58 +793,58 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         layout.setStretch(1, 3)
     
     def create_comparison_tab(self):
-        """´´½¨Ëã·¨¶Ô±È±êÇ©Ò³"""
+        """åˆ›å»ºç®—æ³•å¯¹æ¯”æ ‡ç­¾é¡µ"""
         comparison_tab = QWidget()
-        self.tab_widget.addTab(comparison_tab, "Ëã·¨¶Ô±È")
+        self.tab_widget.addTab(comparison_tab, "ç®—æ³•å¯¹æ¯”")
         
         layout = QVBoxLayout()
         comparison_tab.setLayout(layout)
         
-        # ¶Ô±È¿ØÖÆ°´Å¥
+        # å¯¹æ¯”æ§åˆ¶æŒ‰é’®
         btn_layout = QHBoxLayout()
-        self.compare_btn = PushButton('ÔËĞĞËã·¨¶Ô±È', icon=FluentIcon.SYNC)
+        self.compare_btn = PushButton('è¿è¡Œç®—æ³•å¯¹æ¯”', icon=FluentIcon.SYNC)
         self.compare_btn.clicked.connect(self.run_algorithm_comparison)
         btn_layout.addWidget(self.compare_btn)
         btn_layout.addStretch()
         layout.addLayout(btn_layout)
         
-        # ¶Ô±È½á¹û±í¸ñ
+        # å¯¹æ¯”ç»“æœè¡¨æ ¼
         self.comparison_table = TableWidget()
         self.comparison_table.setColumnCount(8)
         self.comparison_table.setHorizontalHeaderLabels([
-            '·ÖÇøËã·¨', 'Â·¾¶Ëã·¨', '×Ü¾àÀë', 'ÇøÓòÊı', 'Æ½¾ù¾àÀë', 
-            '×î´ó¾àÀë', '×îĞ¡¾àÀë', '¼ÆËãÊ±¼ä(s)'
+            'åˆ†åŒºç®—æ³•', 'è·¯å¾„ç®—æ³•', 'æ€»è·ç¦»', 'åŒºåŸŸæ•°', 'å¹³å‡è·ç¦»', 
+            'æœ€å¤§è·ç¦»', 'æœ€å°è·ç¦»', 'è®¡ç®—æ—¶é—´(s)'
         ])
         layout.addWidget(self.comparison_table)
         
-        # ¶Ô±È½á¹ûÎÄ±¾
+        # å¯¹æ¯”ç»“æœæ–‡æœ¬
         self.comparison_text = TextEdit()
         self.comparison_text.setMaximumHeight(200)
         layout.addWidget(self.comparison_text)
     
     def create_advanced_control_panel(self):
-        """´´½¨¸ß¼¶¿ØÖÆÃæ°å"""
+        """åˆ›å»ºé«˜çº§æ§åˆ¶é¢æ¿"""
         panel = QWidget()
         panel.setMaximumWidth(400)
         layout = QVBoxLayout()
         panel.setLayout(layout)
         
-        # ±êÌâ
-        title = TitleLabel('¸ß¼¶ÅäËÍÏµÍ³')
+        # æ ‡é¢˜
+        title = TitleLabel('é«˜çº§é…é€ç³»ç»Ÿ')
         layout.addWidget(title)
         
-        # »ù±¾²ÎÊı×é
-        basic_group = QGroupBox('»ù±¾²ÎÊı')
+        # åŸºæœ¬å‚æ•°ç»„
+        basic_group = QGroupBox('åŸºæœ¬å‚æ•°')
         basic_layout = QGridLayout()
         basic_group.setLayout(basic_layout)
         
-        basic_layout.addWidget(BodyLabel('¿Í»§ÊıÁ¿:'), 0, 0)
+        basic_layout.addWidget(BodyLabel('å®¢æˆ·æ•°é‡:'), 0, 0)
         self.customer_count = SpinBox()
         self.customer_count.setRange(20, 200)
         self.customer_count.setValue(40)
         basic_layout.addWidget(self.customer_count, 0, 1)
         
-        basic_layout.addWidget(BodyLabel('³µÁ¾ÈİÁ¿(kg):'), 1, 0)
+        basic_layout.addWidget(BodyLabel('è½¦è¾†å®¹é‡(kg):'), 1, 0)
         self.vehicle_capacity = SpinBox()
         self.vehicle_capacity.setRange(30, 100)
         self.vehicle_capacity.setValue(50)
@@ -853,29 +852,29 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         
         layout.addWidget(basic_group)
         
-        # Ëã·¨Ñ¡Ôñ×é
-        algorithm_group = QGroupBox('Ëã·¨Ñ¡Ôñ')
+        # ç®—æ³•é€‰æ‹©ç»„
+        algorithm_group = QGroupBox('ç®—æ³•é€‰æ‹©')
         algorithm_layout = QGridLayout()
         algorithm_group.setLayout(algorithm_layout)
         
-        algorithm_layout.addWidget(BodyLabel('·ÖÇøËã·¨:'), 0, 0)
+        algorithm_layout.addWidget(BodyLabel('åˆ†åŒºç®—æ³•:'), 0, 0)
         self.partition_combo = ComboBox()
-        self.partition_combo.addItems(['·ÖÖÎ·¨', 'K-means¾ÛÀà', 'ÈİÁ¿ÏŞÖÆ'])
+        self.partition_combo.addItems(['åˆ†æ²»æ³•', 'K-meansèšç±»', 'å®¹é‡é™åˆ¶'])
         algorithm_layout.addWidget(self.partition_combo, 0, 1)
-        algorithm_layout.addWidget(BodyLabel('Â·¾¶Ëã·¨:'), 1, 0)
+        algorithm_layout.addWidget(BodyLabel('è·¯å¾„ç®—æ³•:'), 1, 0)
         self.route_combo = ComboBox()
         self.route_combo.addItems(['Greedy', '2-Opt', 'DP', 'GA', 'ACO', 'SA'])
         algorithm_layout.addWidget(self.route_combo, 1, 1)
         
         layout.addWidget(algorithm_group)
         
-        # ²Ù×÷°´Å¥
-        self.generate_btn = PushButton('Éú³ÉÓÅ»¯·½°¸', icon=FluentIcon.PLAY)
+        # æ“ä½œæŒ‰é’®
+        self.generate_btn = PushButton('ç”Ÿæˆä¼˜åŒ–æ–¹æ¡ˆ', icon=FluentIcon.PLAY)
         self.generate_btn.clicked.connect(self.generate_advanced_plan)
         layout.addWidget(self.generate_btn)
         
-        # ½á¹ûÏÔÊ¾
-        result_group = QGroupBox('ÏêÏ¸½á¹û')
+        # ç»“æœæ˜¾ç¤º
+        result_group = QGroupBox('è¯¦ç»†ç»“æœ')
         result_layout = QVBoxLayout()
         result_group.setLayout(result_layout)
         
@@ -888,9 +887,9 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         return panel
     
     def generate_advanced_plan(self):
-        """Éú³É¸ß¼¶ÅäËÍ·½°¸"""
+        """ç”Ÿæˆé«˜çº§é…é€æ–¹æ¡ˆ"""
         self.generate_btn.setEnabled(False)
-        self.generate_btn.setText('¼ÆËãÖĞ...')
+        self.generate_btn.setText('è®¡ç®—ä¸­...')
         
         self.calc_thread = AdvancedCalculationThread(
             self.customer_count.value(),
@@ -902,43 +901,43 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         self.calc_thread.start()
     
     def on_advanced_calculation_finished(self, zones, total_distance, stats):
-        """¸ß¼¶¼ÆËãÍê³É»Øµ÷"""
+        """é«˜çº§è®¡ç®—å®Œæˆå›è°ƒ"""
         self.zones = zones
         
-        # ¸üĞÂ¿ÉÊÓ»¯
+        # æ›´æ–°å¯è§†åŒ–
         algorithm_info = f"{stats['partition_method']} + {stats['route_method']}"
         self.visualization.plot_advanced_delivery_system(zones, algorithm_info)
         
-        # ¸üĞÂ½á¹ûÏÔÊ¾
-        result_text = f"=== ¸ß¼¶ÅäËÍ·½°¸½á¹û ===\n\n"
-        result_text += f"Ëã·¨×éºÏ: {algorithm_info}\n"
-        result_text += f"×Ü¿Í»§Êı: {sum(len(zone.customers) for zone in zones)}\n"
-        result_text += f"Ê¹ÓÃ³µÁ¾: {len(zones)} Á¾\n"
-        result_text += f"³µÁ¾ÈİÁ¿: {self.vehicle_capacity.value()}kg\n"
-        result_text += f"×ÜÔËÊä¾àÀë: {total_distance:.2f}\n"
-        result_text += f"Æ½¾ù¾àÀë: {stats['avg_distance']:.2f}\n"
-        result_text += f"¾àÀë·¶Î§: {stats['min_distance']:.2f} - {stats['max_distance']:.2f}\n"
-        result_text += f"×Ü¼ÆËãÊ±¼ä: {stats['total_time']:.3f}Ãë\n\n"
+        # æ›´æ–°ç»“æœæ˜¾ç¤º
+        result_text = f"=== é«˜çº§é…é€æ–¹æ¡ˆç»“æœ ===\n\n"
+        result_text += f"ç®—æ³•ç»„åˆ: {algorithm_info}\n"
+        result_text += f"æ€»å®¢æˆ·æ•°: {sum(len(zone.customers) for zone in zones)}\n"
+        result_text += f"ä½¿ç”¨è½¦è¾†: {len(zones)} è¾†\n"
+        result_text += f"è½¦è¾†å®¹é‡: {self.vehicle_capacity.value()}kg\n"
+        result_text += f"æ€»è¿è¾“è·ç¦»: {total_distance:.2f}\n"
+        result_text += f"å¹³å‡è·ç¦»: {stats['avg_distance']:.2f}\n"
+        result_text += f"è·ç¦»èŒƒå›´: {stats['min_distance']:.2f} - {stats['max_distance']:.2f}\n"
+        result_text += f"æ€»è®¡ç®—æ—¶é—´: {stats['total_time']:.3f}ç§’\n\n"
         
-        # ÏêÏ¸ÇøÓòĞÅÏ¢
+        # è¯¦ç»†åŒºåŸŸä¿¡æ¯
         for zone in zones:
-            result_text += f"ÇøÓò {zone.zone_id} ({zone.algorithm_used}):\n"
-            result_text += f"  ¿Í»§Êı: {len(zone.customers)}\n"
-            result_text += f"  ×ÜÖØÁ¿: {zone.total_weight}kg\n"
-            result_text += f"  ÅäËÍ¾àÀë: {zone.total_distance:.2f}\n"
-            result_text += f"  ¼ÆËãÊ±¼ä: {zone.calculation_time*1000:.1f}ms\n"
-            result_text += f"  ÔØÖØÂÊ: {zone.total_weight/self.vehicle_capacity.value()*100:.1f}%\n\n"
+            result_text += f"åŒºåŸŸ {zone.zone_id} ({zone.algorithm_used}):\n"
+            result_text += f"  å®¢æˆ·æ•°: {len(zone.customers)}\n"
+            result_text += f"  æ€»é‡é‡: {zone.total_weight}kg\n"
+            result_text += f"  é…é€è·ç¦»: {zone.total_distance:.2f}\n"
+            result_text += f"  è®¡ç®—æ—¶é—´: {zone.calculation_time*1000:.1f}ms\n"
+            result_text += f"  è½½é‡ç‡: {zone.total_weight/self.vehicle_capacity.value()*100:.1f}%\n\n"
         
         self.result_text.setPlainText(result_text)
         
-        # »Ö¸´°´Å¥
+        # æ¢å¤æŒ‰é’®
         self.generate_btn.setEnabled(True)
-        self.generate_btn.setText('Éú³ÉÓÅ»¯·½°¸')
+        self.generate_btn.setText('ç”Ÿæˆä¼˜åŒ–æ–¹æ¡ˆ')
         
-        # ÏÔÊ¾³É¹¦ÏûÏ¢
+        # æ˜¾ç¤ºæˆåŠŸæ¶ˆæ¯
         InfoBar.success(
-            title='³É¹¦',
-            content=f'·½°¸Éú³ÉÍê³É£¡×Ü¾àÀë: {total_distance:.2f}',
+            title='æˆåŠŸ',
+            content=f'æ–¹æ¡ˆç”Ÿæˆå®Œæˆï¼æ€»è·ç¦»: {total_distance:.2f}',
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP,
@@ -946,34 +945,34 @@ class AdvancedDeliverySystemWindow(QMainWindow):
             parent=self
         )
     def run_algorithm_comparison(self):
-        """ÔËĞĞËã·¨¶Ô±È"""
+        """è¿è¡Œç®—æ³•å¯¹æ¯”"""
         self.compare_btn.setEnabled(False)
-        self.compare_btn.setText('¶Ô±ÈÖĞ...')
+        self.compare_btn.setText('å¯¹æ¯”ä¸­...')
         self.comparison_results = []
         
-        # ¶¨ÒåÒª¶Ô±ÈµÄËã·¨×éºÏ - °üº¬ĞÂÌí¼ÓµÄËã·¨
+        # å®šä¹‰è¦å¯¹æ¯”çš„ç®—æ³•ç»„åˆ - åŒ…å«æ–°æ·»åŠ çš„ç®—æ³•
         algorithms = [
-            ('·ÖÖÎ·¨', 'Greedy'),
-            ('·ÖÖÎ·¨', '2-Opt'),
-            ('·ÖÖÎ·¨', 'DP'),
-            ('·ÖÖÎ·¨', 'GA'),
-            ('K-means¾ÛÀà', 'Greedy'),
-            ('K-means¾ÛÀà', '2-Opt'),
-            ('K-means¾ÛÀà', 'ACO'),
-            ('ÈİÁ¿ÏŞÖÆ', 'Greedy'),
-            ('ÈİÁ¿ÏŞÖÆ', 'SA'),
-            ('ÈİÁ¿ÏŞÖÆ', 'GA')
+            ('åˆ†æ²»æ³•', 'Greedy'),
+            ('åˆ†æ²»æ³•', '2-Opt'),
+            ('åˆ†æ²»æ³•', 'DP'),
+            ('åˆ†æ²»æ³•', 'GA'),
+            ('K-meansèšç±»', 'Greedy'),
+            ('K-meansèšç±»', '2-Opt'),
+            ('K-meansèšç±»', 'ACO'),
+            ('å®¹é‡é™åˆ¶', 'Greedy'),
+            ('å®¹é‡é™åˆ¶', 'SA'),
+            ('å®¹é‡é™åˆ¶', 'GA')
         ]
         
         self.current_comparison = 0
         self.total_comparisons = len(algorithms)
         self.comparison_algorithms = algorithms
         
-        # ¿ªÊ¼µÚÒ»¸ö¶Ô±È
+        # å¼€å§‹ç¬¬ä¸€ä¸ªå¯¹æ¯”
         self.run_single_comparison()
     
     def run_single_comparison(self):
-        """ÔËĞĞµ¥¸öËã·¨¶Ô±È"""
+        """è¿è¡Œå•ä¸ªç®—æ³•å¯¹æ¯”"""
         if self.current_comparison >= self.total_comparisons:
             self.finish_comparison()
             return
@@ -990,14 +989,14 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         self.comparison_thread.start()
     
     def on_comparison_finished(self, zones, total_distance, stats):
-        """µ¥¸ö¶Ô±ÈÍê³É"""
+        """å•ä¸ªå¯¹æ¯”å®Œæˆ"""
         self.comparison_results.append({
             'zones': zones,
             'total_distance': total_distance,
             'stats': stats
         })
         
-        # ¸üĞÂ±í¸ñ
+        # æ›´æ–°è¡¨æ ¼
         row = self.current_comparison
         self.comparison_table.setRowCount(row + 1)
         
@@ -1014,46 +1013,46 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         self.run_single_comparison()
     
     def finish_comparison(self):
-        """Íê³ÉËùÓĞ¶Ô±È"""
-        # ·ÖÎö½á¹û
+        """å®Œæˆæ‰€æœ‰å¯¹æ¯”"""
+        # åˆ†æç»“æœ
         best_result = min(self.comparison_results, key=lambda x: x['total_distance'])
         fastest_result = min(self.comparison_results, key=lambda x: x['stats']['total_time'])
         
-        analysis_text = "=== Ëã·¨¶Ô±È·ÖÎö±¨¸æ ===\n\n"
-        analysis_text += f"²âÊÔÅäÖÃ: {self.customer_count.value()}¸ö¿Í»§, {self.vehicle_capacity.value()}kgÈİÁ¿\n\n"
+        analysis_text = "=== ç®—æ³•å¯¹æ¯”åˆ†ææŠ¥å‘Š ===\n\n"
+        analysis_text += f"æµ‹è¯•é…ç½®: {self.customer_count.value()}ä¸ªå®¢æˆ·, {self.vehicle_capacity.value()}kgå®¹é‡\n\n"
         
-        analysis_text += "×îÓÅ¾àÀë·½°¸:\n"
-        analysis_text += f"  Ëã·¨: {best_result['stats']['partition_method']} + {best_result['stats']['route_method']}\n"
-        analysis_text += f"  ×Ü¾àÀë: {best_result['total_distance']:.2f}\n"
-        analysis_text += f"  ³µÁ¾Êı: {best_result['stats']['num_zones']}\n\n"
+        analysis_text += "æœ€ä¼˜è·ç¦»æ–¹æ¡ˆ:\n"
+        analysis_text += f"  ç®—æ³•: {best_result['stats']['partition_method']} + {best_result['stats']['route_method']}\n"
+        analysis_text += f"  æ€»è·ç¦»: {best_result['total_distance']:.2f}\n"
+        analysis_text += f"  è½¦è¾†æ•°: {best_result['stats']['num_zones']}\n\n"
         
-        analysis_text += "×î¿ì¼ÆËã·½°¸:\n"
-        analysis_text += f"  Ëã·¨: {fastest_result['stats']['partition_method']} + {fastest_result['stats']['route_method']}\n"
-        analysis_text += f"  ¼ÆËãÊ±¼ä: {fastest_result['stats']['total_time']:.3f}Ãë\n"
-        analysis_text += f"  ×Ü¾àÀë: {fastest_result['total_distance']:.2f}\n\n"
-          # Ëã·¨ÌØĞÔ·ÖÎö
-        analysis_text += "Ëã·¨ÌØĞÔ·ÖÎö:\n"
-        analysis_text += "·ÖÇøËã·¨:\n"
-        analysis_text += "? ·ÖÖÎ·¨: ±£Ö¤¸ºÔØ¾ùºâ£¬ÊÊºÏ´ó¹æÄ£ÎÊÌâ\n"
-        analysis_text += "? K-means: »ùÓÚ¾àÀë¾ÛÀà£¬¿ÉÄÜ²úÉú¸üÓÅÂ·Ïß\n"
-        analysis_text += "? ÈİÁ¿ÏŞÖÆ: ¿¼ÂÇÊµ¼ÊÔ¼Êø£¬ÊµÓÃĞÔÇ¿\n\n"
-        analysis_text += "Â·¾¶Ëã·¨:\n"
-        analysis_text += "? Greedy: ¿ìËÙÇó½â£¬ÊÊºÏÊµÊ±Ó¦ÓÃ£¬O(n?)¸´ÔÓ¶È\n"
-        analysis_text += "? 2-Opt: ¾Ö²¿ÓÅ»¯£¬ÖÊÁ¿½ÏºÃ£¬ÊÊÖĞ¼ÆËã¿ªÏú\n"
-        analysis_text += "? DP: ±£Ö¤È«¾Ö×îÓÅ£¬µ«½öÊÊÓÃÓÚĞ¡¹æÄ£ÎÊÌâ(<10¿Í»§)\n"
-        analysis_text += "? GA: ÒÅ´«Ëã·¨£¬ÊÊºÏÖĞ´ó¹æÄ£ÎÊÌâ£¬½âÖÊÁ¿ºÃ\n"
-        analysis_text += "? ACO: ÒÏÈºËã·¨£¬Ä£Äâ×ÔÈ»ĞĞÎª£¬ÊÕÁ²ÎÈ¶¨\n"
-        analysis_text += "? SA: Ä£ÄâÍË»ğ£¬ÄÜÌø³ö¾Ö²¿×îÓÅ£¬²ÎÊıÃô¸Ğ\n"
+        analysis_text += "æœ€å¿«è®¡ç®—æ–¹æ¡ˆ:\n"
+        analysis_text += f"  ç®—æ³•: {fastest_result['stats']['partition_method']} + {fastest_result['stats']['route_method']}\n"
+        analysis_text += f"  è®¡ç®—æ—¶é—´: {fastest_result['stats']['total_time']:.3f}ç§’\n"
+        analysis_text += f"  æ€»è·ç¦»: {fastest_result['total_distance']:.2f}\n\n"
+          # ç®—æ³•ç‰¹æ€§åˆ†æ
+        analysis_text += "ç®—æ³•ç‰¹æ€§åˆ†æ:\n"
+        analysis_text += "åˆ†åŒºç®—æ³•:\n"
+        analysis_text += "â€¢ åˆ†æ²»æ³•: ä¿è¯è´Ÿè½½å‡è¡¡ï¼Œé€‚åˆå¤§è§„æ¨¡é—®é¢˜\n"
+        analysis_text += "â€¢ K-means: åŸºäºè·ç¦»èšç±»ï¼Œå¯èƒ½äº§ç”Ÿæ›´ä¼˜è·¯çº¿\n"
+        analysis_text += "â€¢ å®¹é‡é™åˆ¶: è€ƒè™‘å®é™…çº¦æŸï¼Œå®ç”¨æ€§å¼º\n\n"
+        analysis_text += "è·¯å¾„ç®—æ³•:\n"
+        analysis_text += "â€¢ Greedy: å¿«é€Ÿæ±‚è§£ï¼Œé€‚åˆå®æ—¶åº”ç”¨ï¼ŒO(nÂ²)å¤æ‚åº¦\n"
+        analysis_text += "â€¢ 2-Opt: å±€éƒ¨ä¼˜åŒ–ï¼Œè´¨é‡è¾ƒå¥½ï¼Œé€‚ä¸­è®¡ç®—å¼€é”€\n"
+        analysis_text += "â€¢ DP: ä¿è¯å…¨å±€æœ€ä¼˜ï¼Œä½†ä»…é€‚ç”¨äºå°è§„æ¨¡é—®é¢˜(<10å®¢æˆ·)\n"
+        analysis_text += "â€¢ GA: é—ä¼ ç®—æ³•ï¼Œé€‚åˆä¸­å¤§è§„æ¨¡é—®é¢˜ï¼Œè§£è´¨é‡å¥½\n"
+        analysis_text += "â€¢ ACO: èšç¾¤ç®—æ³•ï¼Œæ¨¡æ‹Ÿè‡ªç„¶è¡Œä¸ºï¼Œæ”¶æ•›ç¨³å®š\n"
+        analysis_text += "â€¢ SA: æ¨¡æ‹Ÿé€€ç«ï¼Œèƒ½è·³å‡ºå±€éƒ¨æœ€ä¼˜ï¼Œå‚æ•°æ•æ„Ÿ\n"
         
         self.comparison_text.setPlainText(analysis_text)
         
-        # »Ö¸´°´Å¥
+        # æ¢å¤æŒ‰é’®
         self.compare_btn.setEnabled(True)
-        self.compare_btn.setText('ÔËĞĞËã·¨¶Ô±È')
+        self.compare_btn.setText('è¿è¡Œç®—æ³•å¯¹æ¯”')
         
         InfoBar.success(
-            title='¶Ô±ÈÍê³É',
-            content='Ëã·¨¶Ô±È·ÖÎöÒÑÍê³É',
+            title='å¯¹æ¯”å®Œæˆ',
+            content='ç®—æ³•å¯¹æ¯”åˆ†æå·²å®Œæˆ',
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP,
@@ -1062,10 +1061,10 @@ class AdvancedDeliverySystemWindow(QMainWindow):
         )
 
 def main():
-    """Ö÷º¯Êı"""
+    """ä¸»å‡½æ•°"""
     app = QApplication(sys.argv)
     
-    app.setApplicationName('¸ß¼¶ÖÇÄÜ¿ìµİÅäËÍÏµÍ³')
+    app.setApplicationName('é«˜çº§æ™ºèƒ½å¿«é€’é…é€ç³»ç»Ÿ')
     app.setApplicationVersion('2.0')
     
     window = AdvancedDeliverySystemWindow()

@@ -1,11 +1,11 @@
-# -*- coding: gb2312 -*-
+
 """
-¿ìµİÅäËÍÏµÍ³ - Ê¹ÓÃQFluentWidgetsÃÀ»¯½çÃæ
-ÊµÏÖ¹¦ÄÜ£º
-1. ·ÖÖÎ·¨µİ¹é·ÖÇø¿Í»§£¨Ã¿×é5ÈË£©
-2. Ì°ĞÄËã·¨ÓÅ»¯ÅäËÍÂ·Ïß
-3. ¿ÉÊÓ»¯Õ¹Ê¾·ÖÇøºÍÂ·Ïß
-4. ¼ÆËã×ÜÔËÊä¾àÀë
+å¿«é€’é…é€ç³»ç»Ÿ - ä½¿ç”¨QFluentWidgetsç¾åŒ–ç•Œé¢
+å®ç°åŠŸèƒ½ï¼š
+1. åˆ†æ²»æ³•é€’å½’åˆ†åŒºå®¢æˆ·ï¼ˆæ¯ç»„5äººï¼‰
+2. è´ªå¿ƒç®—æ³•ä¼˜åŒ–é…é€è·¯çº¿
+3. å¯è§†åŒ–å±•ç¤ºåˆ†åŒºå’Œè·¯çº¿
+4. è®¡ç®—æ€»è¿è¾“è·ç¦»
 """
 
 import sys
@@ -26,27 +26,27 @@ from qfluentwidgets import (PushButton, SpinBox, TextEdit, TitleLabel,
                            SubtitleLabel, BodyLabel, setTheme, Theme,
                            FluentIcon, InfoBar, InfoBarPosition)
 
-# ÉèÖÃmatplotlibÖ§³ÖÖĞÎÄ
+# è®¾ç½®matplotlibæ”¯æŒä¸­æ–‡
 plt.rcParams['font.sans-serif'] = ['SimHei']
 plt.rcParams['axes.unicode_minus'] = False
 
 class Customer:
-    """¿Í»§Àà"""
+    """å®¢æˆ·ç±»"""
     def __init__(self, x, y, customer_id):
         self.x = x
         self.y = y
         self.id = customer_id
-        self.cargo_weight = random.randint(1, 10)  # »õÎïÖØÁ¿1-10kg
+        self.cargo_weight = random.randint(1, 10)  # è´§ç‰©é‡é‡1-10kg
     
     def distance_to(self, other):
-        """¼ÆËãµ½ÁíÒ»¸öµãµÄ¾àÀë"""
+        """è®¡ç®—åˆ°å¦ä¸€ä¸ªç‚¹çš„è·ç¦»"""
         if isinstance(other, Customer):
             return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
-        else:  # ¼ÙÉèotherÊÇ(x, y)Ôª×é
+        else:  # å‡è®¾otheræ˜¯(x, y)å…ƒç»„
             return math.sqrt((self.x - other[0])**2 + (self.y - other[1])**2)
 
 class DeliveryZone:
-    """ÅäËÍÇøÓòÀà"""
+    """é…é€åŒºåŸŸç±»"""
     def __init__(self, customers, zone_id):
         self.customers = customers
         self.zone_id = zone_id
@@ -55,22 +55,22 @@ class DeliveryZone:
         self.total_weight = sum(c.cargo_weight for c in customers)
     
     def calculate_greedy_route(self):
-        """Ê¹ÓÃÌ°ĞÄËã·¨¼ÆËã×îÓÅÂ·Ïß"""
+        """ä½¿ç”¨è´ªå¿ƒç®—æ³•è®¡ç®—æœ€ä¼˜è·¯çº¿"""
         if not self.customers:
             return
         
-        # ´ÓÔ­µã(0,0)¿ªÊ¼
+        # ä»åŸç‚¹(0,0)å¼€å§‹
         current_pos = (0, 0)
         unvisited = self.customers.copy()
         route = [current_pos]
         total_distance = 0
         
         while unvisited:
-            # ÕÒµ½¾àÀëµ±Ç°Î»ÖÃ×î½üµÄ¿Í»§
+            # æ‰¾åˆ°è·ç¦»å½“å‰ä½ç½®æœ€è¿‘çš„å®¢æˆ·
             nearest_customer = min(unvisited, 
                                  key=lambda c: c.distance_to(current_pos))
             
-            # ¼ÆËã¾àÀë²¢Ìí¼Óµ½Â·Ïß
+            # è®¡ç®—è·ç¦»å¹¶æ·»åŠ åˆ°è·¯çº¿
             distance = nearest_customer.distance_to(current_pos)
             total_distance += distance
             
@@ -78,7 +78,7 @@ class DeliveryZone:
             current_pos = (nearest_customer.x, nearest_customer.y)
             unvisited.remove(nearest_customer)
         
-        # ·µ»ØÔ­µã
+        # è¿”å›åŸç‚¹
         return_distance = math.sqrt(current_pos[0]**2 + current_pos[1]**2)
         total_distance += return_distance
         route.append((0, 0))
@@ -88,19 +88,19 @@ class DeliveryZone:
         return total_distance
 
 class DeliveryAlgorithm:
-    """ÅäËÍËã·¨Àà"""
+    """é…é€ç®—æ³•ç±»"""
     
     @staticmethod
     def divide_customers(customers, group_size=5):
-        """Ê¹ÓÃ·ÖÖÎ·¨µİ¹é·ÖÇø¿Í»§"""
+        """ä½¿ç”¨åˆ†æ²»æ³•é€’å½’åˆ†åŒºå®¢æˆ·"""
         if len(customers) <= group_size:
             return [customers]
         
-        # °´x×ø±êÅÅĞò
+        # æŒ‰xåæ ‡æ’åº
         customers_sorted = sorted(customers, key=lambda c: c.x)
         mid = len(customers_sorted) // 2
         
-        # µİ¹é·ÖÖÎ
+        # é€’å½’åˆ†æ²»
         left_groups = DeliveryAlgorithm.divide_customers(
             customers_sorted[:mid], group_size)
         right_groups = DeliveryAlgorithm.divide_customers(
@@ -110,7 +110,7 @@ class DeliveryAlgorithm:
     
     @staticmethod
     def optimize_routes(zones):
-        """ÓÅ»¯ËùÓĞÇøÓòµÄÅäËÍÂ·Ïß"""
+        """ä¼˜åŒ–æ‰€æœ‰åŒºåŸŸçš„é…é€è·¯çº¿"""
         total_distance = 0
         for zone in zones:
             distance = zone.calculate_greedy_route()
@@ -118,7 +118,7 @@ class DeliveryAlgorithm:
         return total_distance
 
 class VisualizationWidget(QWidget):
-    """¿ÉÊÓ»¯×é¼ş"""
+    """å¯è§†åŒ–ç»„ä»¶"""
     
     def __init__(self):
         super().__init__()
@@ -128,7 +128,7 @@ class VisualizationWidget(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
         
-        # ´´½¨matplotlibÍ¼ĞÎ
+        # åˆ›å»ºmatplotlibå›¾å½¢
         self.figure = Figure(figsize=(12, 8))
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
@@ -136,43 +136,43 @@ class VisualizationWidget(QWidget):
         self.setLayout(layout)
     
     def plot_delivery_system(self, zones):
-        """»æÖÆÅäËÍÏµÍ³Í¼"""
+        """ç»˜åˆ¶é…é€ç³»ç»Ÿå›¾"""
         self.zones = zones
         self.figure.clear()
         ax = self.figure.add_subplot(111)
         
-        # ÑÕÉ«ÁĞ±í
+        # é¢œè‰²åˆ—è¡¨
         colors = ['red', 'blue', 'green', 'orange', 'purple', 'brown', 
                  'pink', 'gray', 'olive', 'cyan']
         
-        # »æÖÆÔ­µã
-        ax.plot(0, 0, 'ko', markersize=12, label='ÅäËÍÖĞĞÄ')
+        # ç»˜åˆ¶åŸç‚¹
+        ax.plot(0, 0, 'ko', markersize=12, label='é…é€ä¸­å¿ƒ')
         
-        # »æÖÆÃ¿¸öÇøÓò
+        # ç»˜åˆ¶æ¯ä¸ªåŒºåŸŸ
         for i, zone in enumerate(zones):
             color = colors[i % len(colors)]
             
-            # »æÖÆ¿Í»§µã
+            # ç»˜åˆ¶å®¢æˆ·ç‚¹
             x_coords = [c.x for c in zone.customers]
             y_coords = [c.y for c in zone.customers]
             ax.scatter(x_coords, y_coords, c=color, s=100, 
-                      label=f'ÇøÓò{zone.zone_id} (ÖØÁ¿:{zone.total_weight}kg)')
+                      label=f'åŒºåŸŸ{zone.zone_id} (é‡é‡:{zone.total_weight}kg)')
             
-            # »æÖÆ¿Í»§ID
+            # ç»˜åˆ¶å®¢æˆ·ID
             for customer in zone.customers:
                 ax.annotate(f'C{customer.id}', 
                            (customer.x, customer.y), 
                            xytext=(5, 5), textcoords='offset points')
             
-            # »æÖÆÅäËÍÂ·Ïß
+            # ç»˜åˆ¶é…é€è·¯çº¿
             if zone.route:
                 route_x = [point[0] for point in zone.route]
                 route_y = [point[1] for point in zone.route]
                 ax.plot(route_x, route_y, color=color, linewidth=2, alpha=0.7)
         
-        ax.set_xlabel('X×ø±ê')
-        ax.set_ylabel('Y×ø±ê')
-        ax.set_title('¿ìµİÅäËÍÏµÍ³ - ·ÖÇøÅäËÍÂ·ÏßÍ¼')
+        ax.set_xlabel('Xåæ ‡')
+        ax.set_ylabel('Yåæ ‡')
+        ax.set_title('å¿«é€’é…é€ç³»ç»Ÿ - åˆ†åŒºé…é€è·¯çº¿å›¾')
         ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         ax.grid(True, alpha=0.3)
         ax.set_aspect('equal')
@@ -181,7 +181,7 @@ class VisualizationWidget(QWidget):
         self.canvas.draw()
 
 class CalculationThread(QThread):
-    """¼ÆËãÏß³Ì"""
+    """è®¡ç®—çº¿ç¨‹"""
     finished = pyqtSignal(list, float)
     
     def __init__(self, num_customers):
@@ -189,29 +189,29 @@ class CalculationThread(QThread):
         self.num_customers = num_customers
     
     def run(self):
-        # Éú³ÉËæ»ú¿Í»§
+        # ç”Ÿæˆéšæœºå®¢æˆ·
         customers = []
         for i in range(self.num_customers):
             x = random.randint(-50, 50)
             y = random.randint(-50, 50)
             customers.append(Customer(x, y, i+1))
         
-        # Ê¹ÓÃ·ÖÖÎ·¨·ÖÇø
+        # ä½¿ç”¨åˆ†æ²»æ³•åˆ†åŒº
         customer_groups = DeliveryAlgorithm.divide_customers(customers, 5)
         
-        # ´´½¨ÅäËÍÇøÓò
+        # åˆ›å»ºé…é€åŒºåŸŸ
         zones = []
         for i, group in enumerate(customer_groups):
             zone = DeliveryZone(group, i+1)
             zones.append(zone)
         
-        # ÓÅ»¯Â·Ïß
+        # ä¼˜åŒ–è·¯çº¿
         total_distance = DeliveryAlgorithm.optimize_routes(zones)
         
         self.finished.emit(zones, total_distance)
 
 class DeliverySystemWindow(QMainWindow):
-    """Ö÷´°¿ÚÀà"""
+    """ä¸»çª—å£ç±»"""
     
     def __init__(self):
         super().__init__()
@@ -219,50 +219,50 @@ class DeliverySystemWindow(QMainWindow):
         self.init_ui()
         
     def init_ui(self):
-        self.setWindowTitle('ÖÇÄÜ¿ìµİÅäËÍÏµÍ³')
+        self.setWindowTitle('æ™ºèƒ½å¿«é€’é…é€ç³»ç»Ÿ')
         self.setGeometry(100, 100, 1400, 800)
         
-        # ÉèÖÃÖ÷Ìâ
+        # è®¾ç½®ä¸»é¢˜
         setTheme(Theme.AUTO)
         
-        # ´´½¨ÖĞÑë´°¿Ú²¿¼ş
+        # åˆ›å»ºä¸­å¤®çª—å£éƒ¨ä»¶
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         
-        # ´´½¨Ö÷²¼¾Ö
+        # åˆ›å»ºä¸»å¸ƒå±€
         main_layout = QHBoxLayout()
         central_widget.setLayout(main_layout)
         
-        # ´´½¨×ó²à¿ØÖÆÃæ°å
+        # åˆ›å»ºå·¦ä¾§æ§åˆ¶é¢æ¿
         control_panel = self.create_control_panel()
         main_layout.addWidget(control_panel)
         
-        # ´´½¨ÓÒ²à¿ÉÊÓ»¯ÇøÓò
+        # åˆ›å»ºå³ä¾§å¯è§†åŒ–åŒºåŸŸ
         self.visualization = VisualizationWidget()
         main_layout.addWidget(self.visualization)
         
-        # ÉèÖÃ²¼¾Ö±ÈÀı
-        main_layout.setStretch(0, 1)  # ¿ØÖÆÃæ°å
-        main_layout.setStretch(1, 3)  # ¿ÉÊÓ»¯ÇøÓò
+        # è®¾ç½®å¸ƒå±€æ¯”ä¾‹
+        main_layout.setStretch(0, 1)  # æ§åˆ¶é¢æ¿
+        main_layout.setStretch(1, 3)  # å¯è§†åŒ–åŒºåŸŸ
         
     def create_control_panel(self):
-        """´´½¨¿ØÖÆÃæ°å"""
+        """åˆ›å»ºæ§åˆ¶é¢æ¿"""
         panel = QWidget()
         panel.setMaximumWidth(350)
         layout = QVBoxLayout()
         panel.setLayout(layout)
         
-        # ±êÌâ
-        title = TitleLabel('¿ìµİÅäËÍÏµÍ³')
+        # æ ‡é¢˜
+        title = TitleLabel('å¿«é€’é…é€ç³»ç»Ÿ')
         layout.addWidget(title)
         
-        # ²ÎÊıÉèÖÃ×é
-        param_group = QGroupBox('²ÎÊıÉèÖÃ')
+        # å‚æ•°è®¾ç½®ç»„
+        param_group = QGroupBox('å‚æ•°è®¾ç½®')
         param_layout = QGridLayout()
         param_group.setLayout(param_layout)
         
-        # ¿Í»§ÊıÁ¿ÉèÖÃ
-        param_layout.addWidget(BodyLabel('¿Í»§ÊıÁ¿:'), 0, 0)
+        # å®¢æˆ·æ•°é‡è®¾ç½®
+        param_layout.addWidget(BodyLabel('å®¢æˆ·æ•°é‡:'), 0, 0)
         self.customer_count = SpinBox()
         self.customer_count.setRange(20, 100)
         self.customer_count.setValue(30)
@@ -270,17 +270,17 @@ class DeliverySystemWindow(QMainWindow):
         
         layout.addWidget(param_group)
         
-        # ²Ù×÷°´Å¥
-        self.generate_btn = PushButton('Éú³ÉÅäËÍ·½°¸', icon=FluentIcon.PLAY)
+        # æ“ä½œæŒ‰é’®
+        self.generate_btn = PushButton('ç”Ÿæˆé…é€æ–¹æ¡ˆ', icon=FluentIcon.PLAY)
         self.generate_btn.clicked.connect(self.generate_delivery_plan)
         layout.addWidget(self.generate_btn)
         
-        self.analyze_btn = PushButton('Ëã·¨¶Ô±È·ÖÎö', icon=FluentIcon.CAFE)
+        self.analyze_btn = PushButton('ç®—æ³•å¯¹æ¯”åˆ†æ', icon=FluentIcon.CAFE)
         self.analyze_btn.clicked.connect(self.analyze_algorithms)
         layout.addWidget(self.analyze_btn)
         
-        # ½á¹ûÏÔÊ¾ÇøÓò
-        result_group = QGroupBox('½á¹ûĞÅÏ¢')
+        # ç»“æœæ˜¾ç¤ºåŒºåŸŸ
+        result_group = QGroupBox('ç»“æœä¿¡æ¯')
         result_layout = QVBoxLayout()
         result_group.setLayout(result_layout)
         
@@ -290,51 +290,51 @@ class DeliverySystemWindow(QMainWindow):
         
         layout.addWidget(result_group)
         
-        # Ìí¼Óµ¯ĞÔ¿Õ¼ä
+        # æ·»åŠ å¼¹æ€§ç©ºé—´
         layout.addStretch()
         
         return panel
     
     def generate_delivery_plan(self):
-        """Éú³ÉÅäËÍ·½°¸"""
+        """ç”Ÿæˆé…é€æ–¹æ¡ˆ"""
         self.generate_btn.setEnabled(False)
-        self.generate_btn.setText('¼ÆËãÖĞ...')
+        self.generate_btn.setText('è®¡ç®—ä¸­...')
         
-        # ´´½¨¼ÆËãÏß³Ì
+        # åˆ›å»ºè®¡ç®—çº¿ç¨‹
         self.calc_thread = CalculationThread(self.customer_count.value())
         self.calc_thread.finished.connect(self.on_calculation_finished)
         self.calc_thread.start()
     
     def on_calculation_finished(self, zones, total_distance):
-        """¼ÆËãÍê³É»Øµ÷"""
+        """è®¡ç®—å®Œæˆå›è°ƒ"""
         self.zones = zones
         
-        # ¸üĞÂ¿ÉÊÓ»¯
+        # æ›´æ–°å¯è§†åŒ–
         self.visualization.plot_delivery_system(zones)
         
-        # ¸üĞÂ½á¹ûÏÔÊ¾
-        result_text = f"=== ÅäËÍ·½°¸½á¹û ===\n\n"
-        result_text += f"×Ü¿Í»§Êı: {sum(len(zone.customers) for zone in zones)}\n"
-        result_text += f"·ÖÇøÊıÁ¿: {len(zones)}\n"
-        result_text += f"×ÜÔËÊä¾àÀë: {total_distance:.2f}\n\n"
+        # æ›´æ–°ç»“æœæ˜¾ç¤º
+        result_text = f"=== é…é€æ–¹æ¡ˆç»“æœ ===\n\n"
+        result_text += f"æ€»å®¢æˆ·æ•°: {sum(len(zone.customers) for zone in zones)}\n"
+        result_text += f"åˆ†åŒºæ•°é‡: {len(zones)}\n"
+        result_text += f"æ€»è¿è¾“è·ç¦»: {total_distance:.2f}\n\n"
         
         for zone in zones:
-            result_text += f"ÇøÓò {zone.zone_id}:\n"
-            result_text += f"  ¿Í»§Êı: {len(zone.customers)}\n"
-            result_text += f"  ×ÜÖØÁ¿: {zone.total_weight}kg\n"
-            result_text += f"  ÅäËÍ¾àÀë: {zone.total_distance:.2f}\n"
-            result_text += f"  ¿Í»§: {', '.join([f'C{c.id}' for c in zone.customers])}\n\n"
+            result_text += f"åŒºåŸŸ {zone.zone_id}:\n"
+            result_text += f"  å®¢æˆ·æ•°: {len(zone.customers)}\n"
+            result_text += f"  æ€»é‡é‡: {zone.total_weight}kg\n"
+            result_text += f"  é…é€è·ç¦»: {zone.total_distance:.2f}\n"
+            result_text += f"  å®¢æˆ·: {', '.join([f'C{c.id}' for c in zone.customers])}\n\n"
         
         self.result_text.setPlainText(result_text)
         
-        # »Ö¸´°´Å¥
+        # æ¢å¤æŒ‰é’®
         self.generate_btn.setEnabled(True)
-        self.generate_btn.setText('Éú³ÉÅäËÍ·½°¸')
+        self.generate_btn.setText('ç”Ÿæˆé…é€æ–¹æ¡ˆ')
         
-        # ÏÔÊ¾³É¹¦ÏûÏ¢
+        # æ˜¾ç¤ºæˆåŠŸæ¶ˆæ¯
         InfoBar.success(
-            title='³É¹¦',
-            content=f'ÒÑÉú³ÉÅäËÍ·½°¸£¬×Ü¾àÀë: {total_distance:.2f}',
+            title='æˆåŠŸ',
+            content=f'å·²ç”Ÿæˆé…é€æ–¹æ¡ˆï¼Œæ€»è·ç¦»: {total_distance:.2f}',
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.TOP,
@@ -343,11 +343,11 @@ class DeliverySystemWindow(QMainWindow):
         )
     
     def analyze_algorithms(self):
-        """Ëã·¨¶Ô±È·ÖÎö"""
+        """ç®—æ³•å¯¹æ¯”åˆ†æ"""
         if not self.zones:
             InfoBar.warning(
-                title='ÌáÊ¾',
-                content='ÇëÏÈÉú³ÉÅäËÍ·½°¸',
+                title='æç¤º',
+                content='è¯·å…ˆç”Ÿæˆé…é€æ–¹æ¡ˆ',
                 orient=Qt.Orientation.Horizontal,
                 isClosable=True,
                 position=InfoBarPosition.TOP,
@@ -356,33 +356,33 @@ class DeliverySystemWindow(QMainWindow):
             )
             return
         
-        # ÕâÀï¿ÉÒÔÊµÏÖ²»Í¬Ëã·¨µÄ¶Ô±È
-        analysis_text = "=== Ëã·¨·ÖÎö¶Ô±È ===\n\n"
-        analysis_text += "µ±Ç°Ê¹ÓÃËã·¨:\n"
-        analysis_text += "1. ·ÖÖÎ·¨ - ¿Í»§·ÖÇø (Ã¿×é5ÈË)\n"
-        analysis_text += "2. Ì°ĞÄËã·¨ - Â·¾¶ÓÅ»¯\n\n"
-        analysis_text += "Ëã·¨ÌØµã:\n"
-        analysis_text += "? ·ÖÖÎ·¨È·±£¸ºÔØ¾ùºâ\n"
-        analysis_text += "? Ì°ĞÄËã·¨¿ìËÙÇó½â½üËÆ×îÓÅ½â\n"
-        analysis_text += "? Ê±¼ä¸´ÔÓ¶È: O(n log n)\n"
-        analysis_text += "? ÊÊÓÃÓÚ´ó¹æÄ£ÅäËÍÎÊÌâ\n\n"
+        # è¿™é‡Œå¯ä»¥å®ç°ä¸åŒç®—æ³•çš„å¯¹æ¯”
+        analysis_text = "=== ç®—æ³•åˆ†æå¯¹æ¯” ===\n\n"
+        analysis_text += "å½“å‰ä½¿ç”¨ç®—æ³•:\n"
+        analysis_text += "1. åˆ†æ²»æ³• - å®¢æˆ·åˆ†åŒº (æ¯ç»„5äºº)\n"
+        analysis_text += "2. è´ªå¿ƒç®—æ³• - è·¯å¾„ä¼˜åŒ–\n\n"
+        analysis_text += "ç®—æ³•ç‰¹ç‚¹:\n"
+        analysis_text += "â€¢ åˆ†æ²»æ³•ç¡®ä¿è´Ÿè½½å‡è¡¡\n"
+        analysis_text += "â€¢ è´ªå¿ƒç®—æ³•å¿«é€Ÿæ±‚è§£è¿‘ä¼¼æœ€ä¼˜è§£\n"
+        analysis_text += "â€¢ æ—¶é—´å¤æ‚åº¦: O(n log n)\n"
+        analysis_text += "â€¢ é€‚ç”¨äºå¤§è§„æ¨¡é…é€é—®é¢˜\n\n"
         
-        # ¼ÆËãÒ»Ğ©Í³¼ÆĞÅÏ¢
+        # è®¡ç®—ä¸€äº›ç»Ÿè®¡ä¿¡æ¯
         distances = [zone.total_distance for zone in self.zones]
-        analysis_text += f"¾àÀëÍ³¼Æ:\n"
-        analysis_text += f"? ×î¶ÌÂ·Ïß: {min(distances):.2f}\n"
-        analysis_text += f"? ×î³¤Â·Ïß: {max(distances):.2f}\n"
-        analysis_text += f"? Æ½¾ù¾àÀë: {np.mean(distances):.2f}\n"
-        analysis_text += f"? ±ê×¼²î: {np.std(distances):.2f}\n"
+        analysis_text += f"è·ç¦»ç»Ÿè®¡:\n"
+        analysis_text += f"â€¢ æœ€çŸ­è·¯çº¿: {min(distances):.2f}\n"
+        analysis_text += f"â€¢ æœ€é•¿è·¯çº¿: {max(distances):.2f}\n"
+        analysis_text += f"â€¢ å¹³å‡è·ç¦»: {np.mean(distances):.2f}\n"
+        analysis_text += f"â€¢ æ ‡å‡†å·®: {np.std(distances):.2f}\n"
         
         self.result_text.setPlainText(analysis_text)
 
 def main():
-    """Ö÷º¯Êı"""
+    """ä¸»å‡½æ•°"""
     app = QApplication(sys.argv)
     
-    # ÉèÖÃÓ¦ÓÃ³ÌĞòĞÅÏ¢
-    app.setApplicationName('ÖÇÄÜ¿ìµİÅäËÍÏµÍ³')
+    # è®¾ç½®åº”ç”¨ç¨‹åºä¿¡æ¯
+    app.setApplicationName('æ™ºèƒ½å¿«é€’é…é€ç³»ç»Ÿ')
     app.setApplicationVersion('1.0')
     
     window = DeliverySystemWindow()
